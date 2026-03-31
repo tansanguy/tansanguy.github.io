@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거국적 대화</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Noto+Serif+KR:wght@300;400;700;900&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0a0a0a;--white:#f4f2ee;--g100:#181818;--g200:#242424;
+  --g300:#383838;--g400:#666;--g500:#999;--g600:#bbb;
+  --accent:#e8e3d9;--border:rgba(255,255,255,0.07);
+  --serif:'Playfair Display','Noto Serif KR',Georgia,serif;
+  --mono:'DM Mono',monospace;
+  --sans:'Noto Sans KR',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;line-height:1.75;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:200;background:rgba(10,10,10,.93);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 40px}
+.logo{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;color:var(--white)}
+.logo em{color:var(--g400);font-style:normal}
+nav{display:flex;gap:28px;align-items:center}
+nav a{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--g500);text-decoration:none;cursor:pointer;transition:color .2s;background:none;border:none}
+nav a:hover,nav a.active{color:var(--white)}
+.btn-write{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:var(--white);color:var(--black);border:none;padding:7px 18px;cursor:pointer;font-weight:500;transition:all .2s}
+.btn-write:hover{background:var(--accent)}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* HERO */
+.hero{padding:100px 40px 72px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::after{content:'BLOG';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-family:var(--serif);font-size:clamp(100px,16vw,240px);font-weight:900;color:rgba(255,255,255,.018);line-height:1;pointer-events:none;user-select:none}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--g400);margin-bottom:20px}
+.hero h1{font-family:var(--serif);font-size:clamp(44px,6.5vw,88px);font-weight:900;line-height:.95;letter-spacing:-.025em;margin-bottom:22px}
+.hero h1 em{font-style:italic;color:var(--g500)}
+.hero-desc{font-size:14px;color:var(--g500);max-width:420px;line-height:1.85}
+
+/* POST GRID */
+.posts-section{padding:72px 40px}
+.section-bar{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:40px;border-bottom:1px solid var(--border);padding-bottom:16px}
+.section-bar-title{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--g400)}
+.section-bar-count{font-family:var(--mono);font-size:10px;color:var(--g300)}
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1px;background:var(--border)}
+.post-card{background:var(--black);padding:36px;cursor:pointer;transition:background .18s;position:relative;overflow:hidden}
+.post-card:hover{background:var(--g100)}
+.post-card:hover .card-go{opacity:1;transform:translate(0,0)}
+.card-meta{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.card-num{font-family:var(--mono);font-size:9px;color:var(--g300);letter-spacing:.12em}
+.card-tag{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);border:1px solid var(--g300);padding:2px 7px}
+.card-date{font-family:var(--mono);font-size:9px;color:var(--g300);margin-left:auto}
+.card-cover{width:100%;aspect-ratio:16/9;object-fit:cover;margin-bottom:20px;filter:grayscale(100%) contrast(1.1);transition:filter .3s}
+.card-cover-ph{width:100%;aspect-ratio:16/9;background:var(--g200);margin-bottom:20px;display:flex;align-items:center;justify-content:center}
+.card-cover-ph span{font-family:var(--mono);font-size:9px;color:var(--g300);letter-spacing:.1em}
+.post-card:hover .card-cover{filter:grayscale(40%) contrast(1.05)}
+.card-title{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1.25;margin-bottom:10px;letter-spacing:-.01em}
+.card-excerpt{font-size:12px;color:var(--g500);line-height:1.75;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-go{position:absolute;bottom:36px;right:36px;font-size:16px;opacity:0;transform:translate(-4px,4px);transition:all .18s;color:var(--g500)}
+.empty-state{grid-column:1/-1;padding:100px 32px;text-align:center;border:1px solid var(--border)}
+.empty-state p{font-family:var(--mono);font-size:11px;color:var(--g400);letter-spacing:.1em;margin-bottom:20px}
+
+/* POST VIEW */
+.post-header-wrap{padding:72px 40px 52px;border-bottom:1px solid var(--border);max-width:800px}
+.post-back{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-bottom:36px;transition:color .2s;background:none;border:none}
+.post-back:hover{color:var(--white)}
+.post-meta-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.post-tag-badge{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--g300);padding:3px 9px;color:var(--g400)}
+.post-date-label{font-family:var(--mono);font-size:10px;color:var(--g400)}
+.post-title-h{font-family:var(--serif);font-size:clamp(32px,4.5vw,58px);font-weight:900;line-height:1.06;letter-spacing:-.025em;margin-bottom:16px}
+.post-subtitle-h{font-size:16px;color:var(--g500);line-height:1.7;font-style:italic;font-family:var(--serif)}
+.post-body{max-width:720px;margin:0 auto;padding:56px 40px 100px}
+.post-hero-cover{width:calc(100% + 80px);margin-left:-40px;max-height:520px;object-fit:cover;filter:grayscale(100%) contrast(1.08);margin-bottom:56px;display:block}
+.post-rendered{font-size:16px;line-height:1.9;color:#ccc8c2;word-break:keep-all}
+.post-rendered h2{font-family:var(--serif);font-size:26px;font-weight:700;margin:44px 0 14px;color:var(--white)}
+.post-rendered h3{font-family:var(--serif);font-size:20px;font-weight:700;margin:32px 0 10px;color:var(--white)}
+.post-rendered p{margin-bottom:22px}
+.post-rendered blockquote{border-left:2px solid var(--g400);padding-left:22px;margin:32px 0;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--g500);line-height:1.65}
+.post-rendered code{font-family:var(--mono);font-size:12px;background:var(--g100);padding:2px 6px;border:1px solid var(--g200)}
+.post-rendered pre{background:var(--g100);border:1px solid var(--g200);padding:22px;overflow-x:auto;margin:28px 0}
+.post-rendered pre code{background:none;border:none;padding:0}
+.post-rendered ul,.post-rendered ol{margin:14px 0 22px 24px}
+.post-rendered li{margin-bottom:7px}
+.post-rendered a{color:var(--g500);text-decoration:underline}
+.post-rendered img{max-width:100%;height:auto;filter:grayscale(100%);margin:24px 0;display:block}
+.post-rendered figure{margin:32px 0}
+.post-rendered figcaption{font-family:var(--mono);font-size:10px;color:var(--g400);letter-spacing:.08em;text-align:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--g200)}
+.post-rendered .layout-2col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:28px 0}
+.post-rendered .img-left{display:flex;gap:24px;align-items:flex-start;margin:28px 0}
+.post-rendered .img-left img{width:45%;flex-shrink:0}
+.post-rendered .img-right{display:flex;gap:24px;align-items:flex-start;flex-direction:row-reverse;margin:28px 0}
+.post-rendered .img-right img{width:45%;flex-shrink:0}
+.post-rendered .img-center{text-align:center;margin:28px 0}
+.post-rendered .img-center img{margin:0 auto}
+.post-action-bar{display:flex;gap:10px;padding:0 40px;margin-top:32px}
+.btn-edit,.btn-del{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--g300);padding:8px 16px;cursor:pointer;transition:all .2s;background:none}
+.btn-edit{color:var(--white)}.btn-edit:hover{background:var(--white);color:var(--black)}
+.btn-del{color:var(--g400)}.btn-del:hover{border-color:#f44;color:#f44}
+
+/* EDITOR */
+#editor-view{max-width:960px;margin:0 auto;padding:52px 40px 120px}
+.ed-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+.ed-mode-label{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--g400)}
+.ed-actions{display:flex;gap:10px}
+.btn-save{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--white);color:var(--black);border:none;padding:9px 22px;cursor:pointer;font-weight:500;transition:all .2s}
+.btn-save:hover{background:var(--accent)}
+.btn-cancel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:none;color:var(--g400);border:1px solid var(--g300);padding:9px 22px;cursor:pointer;transition:all .2s}
+.btn-cancel:hover{color:var(--white);border-color:var(--white)}
+.fg{margin-bottom:28px}
+.fl{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--g400);margin-bottom:9px;display:block}
+.fi-title{width:100%;background:none;border:none;border-bottom:1px solid var(--g200);color:var(--white);font-family:var(--serif);font-size:38px;font-weight:900;padding:6px 0;outline:none;letter-spacing:-.02em;transition:border-color .2s}
+.fi-title:focus{border-color:var(--g400)}.fi-title::placeholder{color:var(--g300)}
+.fi-sub{width:100%;background:none;border:none;border-bottom:1px solid var(--g200);color:var(--g500);font-family:var(--serif);font-size:17px;font-style:italic;padding:6px 0;outline:none;transition:border-color .2s}
+.fi-sub:focus{border-color:var(--g400)}.fi-sub::placeholder{color:var(--g300)}
+.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.fi{width:100%;background:var(--g100);border:1px solid var(--g200);color:var(--white);font-family:var(--mono);font-size:12px;padding:11px 14px;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--g400)}.fi::placeholder{color:var(--g300)}
+
+/* cover upload */
+.upload-zone{border:1px dashed var(--g300);padding:40px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.upload-zone:hover,.upload-zone.on{border-color:var(--white);background:rgba(255,255,255,.02)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.up-icon{font-size:22px;opacity:.35;margin-bottom:10px}
+.up-txt{font-family:var(--mono);font-size:10px;color:var(--g400);letter-spacing:.1em;line-height:1.6}
+.up-txt strong{color:var(--g500)}
+.cover-preview{width:100%;max-height:260px;object-fit:cover;filter:grayscale(100%);display:none;margin-top:14px}
+.cover-preview.show{display:block}
+.btn-clr-img{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);background:none;border:1px solid var(--g300);padding:5px 12px;cursor:pointer;margin-top:8px;transition:all .2s;display:none}
+.btn-clr-img.show{display:inline-block}.btn-clr-img:hover{color:#f44;border-color:#f44}
+
+/* TOOLBAR */
+.toolbar-wrap{background:var(--g100);border:1px solid var(--g200);border-bottom:none}
+.tb-row{display:flex;flex-wrap:wrap;align-items:center;gap:2px;padding:8px 10px;border-bottom:1px solid var(--g200)}
+.tb-btn{font-family:var(--mono);font-size:11px;background:none;border:1px solid transparent;color:var(--g500);padding:4px 9px;cursor:pointer;transition:all .15s;line-height:1.3;white-space:nowrap;-webkit-user-select:none;user-select:none}
+.tb-btn:hover{color:var(--white);border-color:var(--g300);background:var(--g200)}
+.tb-sep{width:1px;height:18px;background:var(--g200);margin:0 5px;flex-shrink:0}
+.tb-select{font-family:var(--mono);font-size:11px;background:var(--g100);border:1px solid var(--g200);color:var(--g500);padding:4px 8px;cursor:pointer;outline:none;transition:all .15s}
+.tb-select:hover{border-color:var(--g300);color:var(--white)}
+.tb-color-wrap{display:flex;align-items:center;gap:5px}
+.tb-color-label{font-family:var(--mono);font-size:9px;color:var(--g400);letter-spacing:.08em}
+.tb-color{width:24px;height:24px;border:1px solid var(--g300);cursor:pointer;padding:1px;background:none;-webkit-appearance:none;border-radius:0}
+.tb-color::-webkit-color-swatch-wrapper{padding:1px}
+.tb-color::-webkit-color-swatch{border:none}
+
+/* EDITOR AREA */
+.editor-area{min-height:520px;background:var(--g100);border:1px solid var(--g200);color:var(--white);font-family:var(--sans);font-size:15px;line-height:1.85;padding:28px;outline:none;resize:vertical;transition:border-color .2s;word-break:keep-all;overflow-y:auto}
+.editor-area:focus{border-color:var(--g400)}
+.editor-area:empty::before{content:attr(data-placeholder);color:var(--g300);pointer-events:none}
+.editor-area h2{font-family:var(--serif);font-size:26px;font-weight:700;margin:36px 0 12px;color:var(--white)}
+.editor-area h3{font-family:var(--serif);font-size:20px;font-weight:700;margin:28px 0 8px;color:var(--white)}
+.editor-area blockquote{border-left:2px solid var(--g400);padding-left:20px;margin:28px 0;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--g500)}
+.editor-area code{font-family:var(--mono);font-size:12px;background:var(--g200);padding:2px 5px}
+.editor-area img{max-width:100%;height:auto;filter:grayscale(100%);margin:12px 0;display:block}
+.editor-area figure{margin:20px 0}
+.editor-area .layout-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;border:1px dashed var(--g300);padding:12px;margin:20px 0;min-height:80px}
+.editor-area .img-left{display:flex;gap:20px;align-items:flex-start;border:1px dashed var(--g300);padding:12px;margin:20px 0}
+.editor-area .img-left img{width:45%;flex-shrink:0}
+.editor-area .img-right{display:flex;gap:20px;align-items:flex-start;flex-direction:row-reverse;border:1px dashed var(--g300);padding:12px;margin:20px 0}
+.editor-area .img-right img{width:45%;flex-shrink:0}
+.editor-area .img-center{text-align:center;border:1px dashed var(--g300);padding:12px;margin:20px 0}
+.editor-area .img-center img{margin:0 auto}
+mark{background:rgba(255,236,0,.28);color:inherit;padding:0 2px;border-radius:1px}
+
+/* IMAGE MODAL */
+.img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;align-items:center;justify-content:center}
+.img-modal.show{display:flex}
+.img-modal-box{background:var(--g100);border:1px solid var(--g200);padding:36px;width:480px;max-width:95vw}
+.img-modal-box h4{font-family:var(--serif);font-size:20px;margin-bottom:20px}
+.img-modal-upload{border:1px dashed var(--g300);padding:32px;text-align:center;cursor:pointer;position:relative;margin-bottom:16px;transition:all .2s}
+.img-modal-upload:hover{border-color:var(--white)}
+.img-modal-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-modal-upload p{font-family:var(--mono);font-size:10px;color:var(--g400);letter-spacing:.1em}
+.img-modal-preview{width:100%;max-height:180px;object-fit:cover;filter:grayscale(100%);display:none;margin-bottom:16px}
+.img-modal-preview.show{display:block}
+.img-modal-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.img-opt-label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--g400);display:block;margin-bottom:6px}
+.img-opt-select{width:100%;background:var(--g200);border:1px solid var(--g300);color:var(--white);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none}
+.img-caption-input{width:100%;background:var(--g200);border:1px solid var(--g300);color:var(--white);font-family:var(--mono);font-size:11px;padding:8px 10px;outline:none;margin-bottom:20px}
+.img-caption-input::placeholder{color:var(--g300)}
+.img-modal-actions{display:flex;gap:10px}
+.btn-insert-img{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--white);color:var(--black);border:none;padding:9px 20px;cursor:pointer;font-weight:500;flex:1}
+.btn-insert-img:disabled{opacity:.35;cursor:not-allowed}
+.btn-img-cancel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:none;color:var(--g400);border:1px solid var(--g300);padding:9px 16px;cursor:pointer}
+
+/* DELETE MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--g100);border:1px solid var(--g200);padding:36px;max-width:380px;width:90%}
+.modal-box h3{font-family:var(--serif);font-size:20px;margin-bottom:10px}
+.modal-box p{font-size:13px;color:var(--g500);margin-bottom:28px;line-height:1.65}
+.modal-acts{display:flex;gap:10px}
+.btn-confirm-del{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:#f44;color:#fff;border:none;padding:9px 18px;cursor:pointer}
+.btn-modal-no{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;color:var(--g400);border:1px solid var(--g300);padding:9px 18px;cursor:pointer}
+
+/* ABOUT */
+#about-view .about-body{padding:56px 40px;max-width:680px;font-size:15px;color:var(--g500);line-height:1.9}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:40px;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--g400)}
+.footer-note{font-family:var(--mono);font-size:9px;color:var(--g300);letter-spacing:.1em}
+
+/* NOTIF */
+.notif{position:fixed;bottom:28px;right:28px;background:var(--white);color:var(--black);font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:12px 22px;z-index:8000;transform:translateY(16px);opacity:0;transition:all .28s}
+.notif.show{transform:translateY(0);opacity:1}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--black)}::-webkit-scrollbar-thumb{background:var(--g200)}
+
+@media(max-width:768px){
+  header{padding:0 20px}
+  .hero,.posts-section{padding-left:20px;padding-right:20px}
+  .posts-grid{grid-template-columns:1fr}
+  .post-header-wrap,.post-body,.post-action-bar{padding-left:20px;padding-right:20px}
+  #editor-view{padding:32px 20px 80px}
+  .fields-row{grid-template-columns:1fr}
+  footer{padding:28px 20px;flex-direction:column;gap:10px}
+  .post-hero-cover{width:calc(100% + 40px);margin-left:-20px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="showView('home')">거국적 대화</div>
+  <nav>
+    <a onclick="showView('home')" id="nav-home" class="active">Archive</a>
+    <a onclick="showView('about')" id="nav-about">About</a>
+    <button class="btn-write" id="btn-write-nav" onclick="openEditor()" style="display:none">+ 새 글</button>
+    <button class="btn-write" id="btn-login-nav" onclick="openLoginModal()">로그인</button>
+    <button class="btn-write" id="btn-logout-nav" onclick="logout()" style="display:none;background:none;color:var(--g400);border:1px solid var(--g300)">로그아웃</button>
+  </nav>
+</header>
+
+<!-- HOME -->
+<div id="home-view" class="view active">
+  <section class="hero">
+    <p class="hero-eyebrow">— Big Talk의 장</p>
+    <h1>거국적<br><em>대화</em></h1>
+    <p class="hero-desc">일상따위는 중요하지 않다. 거국적인 생각들을 이야기하는 big talk의 장.</p>
+  </section>
+  <section class="posts-section">
+    <div class="section-bar">
+      <span class="section-bar-title">All Posts</span>
+      <span class="section-bar-count" id="post-count">0 entries</span>
+    </div>
+    <div class="posts-grid" id="posts-grid">
+      <div class="empty-state">
+        <p>아직 게시물이 없습니다.</p>
+        <button class="btn-write" onclick="openEditor()">+ 첫 글 쓰기</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ABOUT -->
+<div id="about-view" class="view">
+  <div class="post-header-wrap">
+    <p class="hero-eyebrow" style="margin-bottom:36px">— About</p>
+    <h1 class="post-title-h">안녕하세요,<br><em>tansanguy</em>입니다.</h1>
+    <p class="post-subtitle-h">거국적인 생각들을 이야기하는 big talk의 장.</p>
+  </div>
+  <div class="about-body">
+    <p>데이터와 감각을 연결해 문제를 해결하고, 아이디어를 실제 서비스로 구현하는 것을 즐기는 사람입니다. 음악과 창업을 중심으로 새로운 경험을 만들며, 사람과 공간을 연결하는 프로젝트를 만들어가고 있습니다.</p>
+  </div>
+</div>
+
+<!-- POST VIEW -->
+<div id="post-view" class="view">
+  <div class="post-header-wrap">
+    <button class="post-back" onclick="showView('home')">← 목록으로</button>
+    <div class="post-meta-row">
+      <span class="post-tag-badge" id="pv-tag"></span>
+      <span class="post-date-label" id="pv-date"></span>
+    </div>
+    <h1 class="post-title-h" id="pv-title"></h1>
+    <p class="post-subtitle-h" id="pv-subtitle"></p>
+  </div>
+  <div class="post-body">
+    <img class="post-hero-cover" id="pv-cover" src="" alt="" style="display:none">
+    <div class="post-rendered" id="pv-content"></div>
+  </div>
+  <div class="post-action-bar" id="post-action-bar" style="display:none">
+    <button class="btn-edit" onclick="editCurrentPost()">수정</button>
+    <button class="btn-del" onclick="confirmDelete()">삭제</button>
+  </div>
+</div>
+
+<!-- EDITOR -->
+<div id="editor-view" class="view">
+  <div class="ed-topbar">
+    <span class="ed-mode-label" id="ed-label">새 글 작성</span>
+    <div class="ed-actions">
+      <button class="btn-cancel" onclick="cancelEditor()">취소</button>
+      <button class="btn-save" id="btn-save-lbl" onclick="savePost()">발행 →</button>
+    </div>
+  </div>
+
+  <div class="fg"><input class="fi-title" type="text" id="ed-title" placeholder="제목을 입력하세요..."></div>
+  <div class="fg"><input class="fi-sub" type="text" id="ed-subtitle" placeholder="부제목 또는 한 줄 설명..."></div>
+
+  <div class="fg fields-row">
+    <div><label class="fl">카테고리 / 태그</label><input class="fi" type="text" id="ed-tag" placeholder="예: 디자인, 여행, 기술"></div>
+    <div><label class="fl">날짜</label><input class="fi" type="date" id="ed-date"></div>
+  </div>
+
+  <div class="fg">
+    <label class="fl">커버 이미지</label>
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" accept="image/*" id="cover-input" onchange="handleCover(this)">
+      <div class="up-icon">⬆</div>
+      <p class="up-txt"><strong>클릭 또는 드래그</strong>하여 이미지 업로드<br>JPG, PNG, WEBP 지원</p>
+    </div>
+    <img class="cover-preview" id="cover-preview" alt="">
+    <button class="btn-clr-img" id="btn-clr-cover" onclick="clearCover()">✕ 이미지 제거</button>
+  </div>
+
+  <div class="fg">
+    <label class="fl">본문</label>
+    <div class="toolbar-wrap">
+      <!-- Row 1: 서식 -->
+      <div class="tb-row">
+        <button class="tb-btn" onmousedown="e_(event);cmd('bold')"><b>B</b></button>
+        <button class="tb-btn" onmousedown="e_(event);cmd('italic')"><i>I</i></button>
+        <button class="tb-btn" onmousedown="e_(event);cmd('underline')"><u>U</u></button>
+        <button class="tb-btn" onmousedown="e_(event);cmd('strikeThrough')"><s>S</s></button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onmousedown="e_(event);cmdBlock('h2')">H2</button>
+        <button class="tb-btn" onmousedown="e_(event);cmdBlock('h3')">H3</button>
+        <button class="tb-btn" onmousedown="e_(event);cmdBlock('blockquote')">" 인용</button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onmousedown="e_(event);cmd('insertUnorderedList')">• 목록</button>
+        <button class="tb-btn" onmousedown="e_(event);cmd('insertOrderedList')">1. 목록</button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onmousedown="e_(event);insertLink()">🔗 링크</button>
+        <button class="tb-btn" onmousedown="e_(event);insertCode()">{ } 코드</button>
+      </div>
+      <!-- Row 2: 크기·색상·형광펜 -->
+      <div class="tb-row">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--g400);letter-spacing:.1em;margin-right:4px">크기</span>
+        <select class="tb-select" id="size-sel" onmousedown="e_(event)" onchange="applyFontSize(this.value)">
+          <option value="">기본</option>
+          <option value="1">아주 작게</option>
+          <option value="2">작게</option>
+          <option value="4">크게</option>
+          <option value="5">아주 크게</option>
+          <option value="6">제목 크기</option>
+        </select>
+        <div class="tb-sep"></div>
+        <div class="tb-color-wrap">
+          <span class="tb-color-label">글자색</span>
+          <input type="color" class="tb-color" id="txt-color" value="#f4f2ee">
+          <button class="tb-btn" onmousedown="e_(event);applyTxtColor()">적용</button>
+        </div>
+        <div class="tb-sep"></div>
+        <div class="tb-color-wrap">
+          <span class="tb-color-label">형광펜</span>
+          <input type="color" class="tb-color" id="hl-color" value="#ffec00">
+          <button class="tb-btn" onmousedown="e_(event);applyHighlight()">적용</button>
+        </div>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onmousedown="e_(event);cmd('removeFormat')">초기화</button>
+      </div>
+      <!-- Row 3: 레이아웃·이미지 -->
+      <div class="tb-row">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--g400);letter-spacing:.1em;margin-right:6px">레이아웃</span>
+        <button class="tb-btn" onmousedown="e_(event);insertLayout('2col')">▣ 2단</button>
+        <button class="tb-btn" onmousedown="e_(event);insertLayout('img-left')">◧ 좌측이미지</button>
+        <button class="tb-btn" onmousedown="e_(event);insertLayout('img-right')">◨ 우측이미지</button>
+        <button class="tb-btn" onmousedown="e_(event);insertLayout('img-center')">□ 가운데</button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn" onmousedown="e_(event);openImgModal()">📷 이미지 삽입</button>
+      </div>
+    </div>
+    <div class="editor-area" id="ed-content" contenteditable="true" data-placeholder="본문을 입력하세요..."></div>
+  </div>
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="img-modal" id="img-modal">
+  <div class="img-modal-box">
+    <h4>이미지 삽입</h4>
+    <div class="img-modal-upload" id="img-modal-drop">
+      <input type="file" accept="image/*" id="img-modal-input" onchange="handleModalImg(this)">
+      <p>클릭하거나 이미지를 드래그하세요</p>
+    </div>
+    <img class="img-modal-preview" id="img-modal-preview" alt="">
+    <div class="img-modal-opts">
+      <div>
+        <span class="img-opt-label">정렬</span>
+        <select class="img-opt-select" id="img-align-sel">
+          <option value="full">전체폭</option>
+          <option value="center">가운데</option>
+          <option value="left">좌측 (텍스트 감기)</option>
+          <option value="right">우측 (텍스트 감기)</option>
+        </select>
+      </div>
+      <div>
+        <span class="img-opt-label">크기</span>
+        <select class="img-opt-select" id="img-size-sel">
+          <option value="100%">전체 (100%)</option>
+          <option value="75%">크게 (75%)</option>
+          <option value="50%">중간 (50%)</option>
+          <option value="33%">작게 (33%)</option>
+        </select>
+      </div>
+    </div>
+    <input class="img-caption-input" type="text" id="img-caption-input" placeholder="이미지 설명 (선택사항)">
+    <div class="img-modal-actions">
+      <button class="btn-insert-img" id="btn-do-insert" onclick="doInsertImg()" disabled>삽입</button>
+      <button class="btn-img-cancel" onclick="closeImgModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-box">
+    <h3>관리자 로그인</h3>
+    <p>글을 작성하려면 로그인이 필요합니다.</p>
+    <div style="margin-bottom:12px">
+      <label class="fl">이메일</label>
+      <input class="fi" type="email" id="login-email" placeholder="이메일" style="width:100%" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()">
+    </div>
+    <div style="margin-bottom:24px">
+      <label class="fl">비밀번호</label>
+      <input class="fi" type="password" id="login-pw" placeholder="비밀번호" style="width:100%" onkeydown="if(event.key==='Enter')login(document.getElementById('login-email').value,this.value)">
+    </div>
+    <div class="modal-acts">
+      <button class="btn-confirm-del" style="background:var(--white);color:var(--black)" onclick="login(document.getElementById('login-email').value,document.getElementById('login-pw').value)">로그인</button>
+      <button class="btn-modal-no" onclick="closeLoginModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal-box">
+    <h3>글을 삭제할까요?</h3>
+    <p>이 작업은 되돌릴 수 없습니다.</p>
+    <div class="modal-acts">
+      <button class="btn-confirm-del" onclick="deletePost()">삭제</button>
+      <button class="btn-modal-no" onclick="closeDelModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-logo">거국적 대화</span>
+  <span class="footer-note">로컬 저장소 기반 · 브라우저에서 작동</span>
+</footer>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ── SUPABASE CONFIG ──
+const SUPA_URL = 'https://hlnxzpstebvqvwmtnati.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsbnh6cHN0ZWJ2cXZ3bXRuYXRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MTA5NTYsImV4cCI6MjA5MDQ4Njk1Nn0.cCDnKAzqoLWxpfmCn3fJcNajaR1MMhPTkL0umkGHWC4';
+
+async function sbFetch(path, opts = {}) {
+  const res = await fetch(SUPA_URL + '/rest/v1/' + path, {
+    ...opts,
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + (isAdmin ? adminToken : SUPA_KEY),
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || '',
+      ...opts.headers
+    }
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+// ── AUTH STATE ──
+// 비밀번호는 Supabase Auth 이메일 로그인 사용
+// 관리자 여부는 JWT 토큰으로 판별
+let isAdmin = false;
+let adminToken = null;
+
+async function login(email, password) {
+  const res = await fetch(SUPA_URL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { 'apikey': SUPA_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (data.access_token) {
+    adminToken = data.access_token;
+    isAdmin = true;
+    localStorage.setItem('blog_token', adminToken);
+    updateAdminUI();
+    closeLoginModal();
+    notify('로그인되었습니다 ✓');
+  } else {
+    notify('비밀번호가 틀렸습니다');
+  }
+}
+
+async function logout() {
+  isAdmin = false; adminToken = null;
+  localStorage.removeItem('blog_token');
+  updateAdminUI();
+  showView('home');
+  notify('로그아웃되었습니다');
+}
+
+function updateAdminUI() {
+  const writeBtn = document.getElementById('btn-write-nav');
+  const logoutBtn = document.getElementById('btn-logout-nav');
+  const loginBtn = document.getElementById('btn-login-nav');
+  if (isAdmin) {
+    writeBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'inline-block';
+    loginBtn.style.display = 'none';
+  } else {
+    writeBtn.style.display = 'none';
+    logoutBtn.style.display = 'none';
+    loginBtn.style.display = 'inline-block';
+  }
+  // post action bar
+  const bar = document.getElementById('post-action-bar');
+  if (bar) bar.style.display = isAdmin ? 'flex' : 'none';
+}
+
+// restore token on load
+(function() {
+  const t = localStorage.getItem('blog_token');
+  if (t) {
+    // verify token not expired by decoding payload
+    try {
+      const payload = JSON.parse(atob(t.split('.')[1]));
+      if (payload.exp * 1000 > Date.now()) {
+        adminToken = t; isAdmin = true;
+      } else {
+        localStorage.removeItem('blog_token');
+      }
+    } catch(e) { localStorage.removeItem('blog_token'); }
+  }
+})();
+
+// ── LOGIN MODAL ──
+function openLoginModal() {
+  document.getElementById('login-modal').classList.add('show');
+  setTimeout(() => document.getElementById('login-email').focus(), 100);
+}
+function closeLoginModal() {
+  document.getElementById('login-modal').classList.remove('show');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pw').value = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeLoginModal(); closeImgModal(); closeDelModal(); }
+});
+
+// ── STATE ──
+let posts = [];
+let currentId = null, editingId = null, coverData = null, modalImgData = null;
+let savedRange = null;
+
+// ── VIEWS ──
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(name + '-view').classList.add('active');
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  const el = document.getElementById('nav-' + name);
+  if (el) el.classList.add('active');
+  window.scrollTo(0,0);
+  if (name === 'home') loadAndRenderPosts();
+}
+
+// ── LOAD & RENDER POSTS ──
+async function loadAndRenderPosts() {
+  const grid = document.getElementById('posts-grid');
+  grid.innerHTML = `<div class="empty-state"><p style="animation:none">불러오는 중...</p></div>`;
+  try {
+    posts = await sbFetch('posts?select=*&order=created_at.desc');
+    renderPosts();
+  } catch(e) {
+    grid.innerHTML = `<div class="empty-state"><p>불러오기 실패: ${e.message}</p></div>`;
+  }
+}
+
+function renderPosts() {
+  const grid = document.getElementById('posts-grid');
+  const cnt = document.getElementById('post-count');
+  cnt.textContent = posts.length + (posts.length === 1 ? ' entry' : ' entries');
+  if (!posts.length) {
+    grid.innerHTML = `<div class="empty-state"><p>아직 게시물이 없습니다.</p>${isAdmin ? '<button class="btn-write" onclick="openEditor()">+ 첫 글 쓰기</button>' : ''}</div>`;
+    return;
+  }
+  grid.innerHTML = posts.map((p, i) => {
+    const num = String(posts.length - i).padStart(2,'0');
+    const imgHtml = p.cover
+      ? `<img class="card-cover" src="${p.cover}" alt="">`
+      : `<div class="card-cover-ph"><span>NO IMAGE</span></div>`;
+    const excerpt = stripHtml(p.content || '').slice(0,160);
+    return `<div class="post-card" onclick="openPost('${p.id}')">
+      <div class="card-meta">
+        <span class="card-num">#${num}</span>
+        ${p.tag ? `<span class="card-tag">${esc(p.tag)}</span>` : ''}
+        <span class="card-date">${fmtDate(p.date)}</span>
+      </div>
+      ${imgHtml}
+      <h2 class="card-title">${esc(p.title)||'제목 없음'}</h2>
+      <p class="card-excerpt">${esc(excerpt)}${excerpt.length>=160?'…':''}</p>
+      <span class="card-go">→</span>
+    </div>`;
+  }).join('');
+}
+
+// ── OPEN POST ──
+function openPost(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  currentId = id;
+  document.getElementById('pv-tag').textContent = p.tag || '';
+  document.getElementById('pv-date').textContent = fmtDate(p.date);
+  document.getElementById('pv-title').textContent = p.title || '제목 없음';
+  document.getElementById('pv-subtitle').textContent = p.subtitle || '';
+  document.getElementById('pv-content').innerHTML = p.content || '';
+  const cv = document.getElementById('pv-cover');
+  if (p.cover) { cv.src = p.cover; cv.style.display = 'block'; }
+  else cv.style.display = 'none';
+  document.getElementById('post-action-bar').style.display = isAdmin ? 'flex' : 'none';
+  showView('post');
+}
+
+// ── EDITOR ──
+function openEditor(id) {
+  if (!isAdmin) { openLoginModal(); return; }
+  editingId = id || null; coverData = null;
+  if (id) {
+    const p = posts.find(x => x.id === id);
+    document.getElementById('ed-label').textContent = '글 수정';
+    document.getElementById('btn-save-lbl').textContent = '업데이트 →';
+    document.getElementById('ed-title').value = p.title || '';
+    document.getElementById('ed-subtitle').value = p.subtitle || '';
+    document.getElementById('ed-tag').value = p.tag || '';
+    document.getElementById('ed-date').value = p.date || today();
+    document.getElementById('ed-content').innerHTML = p.content || '';
+    if (p.cover) { coverData = p.cover; showCoverPreview(p.cover); } else clearCover();
+  } else {
+    document.getElementById('ed-label').textContent = '새 글 작성';
+    document.getElementById('btn-save-lbl').textContent = '발행 →';
+    document.getElementById('ed-title').value = '';
+    document.getElementById('ed-subtitle').value = '';
+    document.getElementById('ed-tag').value = '';
+    document.getElementById('ed-date').value = today();
+    document.getElementById('ed-content').innerHTML = '';
+    clearCover();
+  }
+  showView('editor');
+  setTimeout(() => document.getElementById('ed-title').focus(), 80);
+}
+
+function cancelEditor() { editingId ? openPost(editingId) : showView('home'); }
+function editCurrentPost() { if (isAdmin) openEditor(currentId); }
+
+async function savePost() {
+  if (!isAdmin) return;
+  const title = document.getElementById('ed-title').value.trim();
+  const subtitle = document.getElementById('ed-subtitle').value.trim();
+  const tag = document.getElementById('ed-tag').value.trim();
+  const date = document.getElementById('ed-date').value;
+  const content = document.getElementById('ed-content').innerHTML;
+  if (!title) { notify('제목을 입력해 주세요'); return; }
+  notify('저장 중...');
+  try {
+    if (editingId) {
+      await sbFetch(`posts?id=eq.${editingId}`, {
+        method: 'PATCH',
+        prefer: 'return=representation',
+        body: JSON.stringify({ title, subtitle, tag, date, content, cover: coverData })
+      });
+      notify('수정되었습니다 ✓');
+      await loadAndRenderPosts();
+      openPost(editingId);
+    } else {
+      const result = await sbFetch('posts', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: JSON.stringify({ title, subtitle, tag, date, content, cover: coverData })
+      });
+      notify('발행되었습니다 ✓');
+      await loadAndRenderPosts();
+      if (result && result[0]) openPost(result[0].id);
+      else showView('home');
+    }
+  } catch(e) {
+    notify('오류: ' + e.message);
+  }
+}
+
+// ── DELETE ──
+function confirmDelete() { if (isAdmin) document.getElementById('del-modal').classList.add('show'); }
+function closeDelModal() { document.getElementById('del-modal').classList.remove('show'); }
+async function deletePost() {
+  if (!isAdmin) return;
+  try {
+    await sbFetch(`posts?id=eq.${currentId}`, { method: 'DELETE' });
+    closeDelModal(); notify('삭제되었습니다');
+    await loadAndRenderPosts();
+    showView('home');
+  } catch(e) { notify('삭제 실패: ' + e.message); }
+}
+
+// ── COVER IMAGE ──
+function handleCover(input) {
+  const f = input.files[0]; if (!f) return;
+  readImg(f, d => { coverData = d; showCoverPreview(d); });
+}
+function showCoverPreview(src) {
+  document.getElementById('cover-preview').src = src;
+  document.getElementById('cover-preview').classList.add('show');
+  document.getElementById('btn-clr-cover').classList.add('show');
+}
+function clearCover() {
+  coverData = null;
+  document.getElementById('cover-preview').classList.remove('show');
+  document.getElementById('btn-clr-cover').classList.remove('show');
+  document.getElementById('cover-input').value = '';
+}
+const upZone = document.getElementById('upload-zone');
+upZone.addEventListener('dragover', e => { e.preventDefault(); upZone.classList.add('on'); });
+upZone.addEventListener('dragleave', () => upZone.classList.remove('on'));
+upZone.addEventListener('drop', e => {
+  e.preventDefault(); upZone.classList.remove('on');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) readImg(f, d => { coverData = d; showCoverPreview(d); });
+});
+
+// ── IME FIX ──
+function e_(event) { event.preventDefault(); }
+function getEd() { return document.getElementById('ed-content'); }
+function saveSelection() {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) savedRange = sel.getRangeAt(0).cloneRange();
+}
+function restoreSelection() {
+  if (savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(savedRange); }
+}
+document.getElementById('ed-content').addEventListener('keyup', saveSelection);
+document.getElementById('ed-content').addEventListener('mouseup', saveSelection);
+document.getElementById('ed-content').addEventListener('focus', saveSelection);
+
+// ── TOOLBAR ──
+function cmd(c) { restoreSelection(); getEd().focus(); document.execCommand(c, false, null); saveSelection(); }
+function cmdBlock(tag) { restoreSelection(); getEd().focus(); document.execCommand('formatBlock', false, tag); saveSelection(); }
+function applyFontSize(val) { if (!val) return; restoreSelection(); getEd().focus(); document.execCommand('fontSize', false, val); document.getElementById('size-sel').value = ''; saveSelection(); }
+function applyTxtColor() { const c = document.getElementById('txt-color').value; restoreSelection(); getEd().focus(); document.execCommand('foreColor', false, c); saveSelection(); }
+function applyHighlight() { const c = document.getElementById('hl-color').value; restoreSelection(); getEd().focus(); try { document.execCommand('hiliteColor', false, c); } catch(e) { document.execCommand('backColor', false, c); } saveSelection(); }
+function insertLink() { saveSelection(); const url = prompt('URL을 입력하세요:'); if (url) { restoreSelection(); getEd().focus(); document.execCommand('createLink', false, url); saveSelection(); } }
+function insertCode() {
+  restoreSelection(); getEd().focus();
+  const sel = window.getSelection(); if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0); const code = document.createElement('code');
+  try { range.surroundContents(code); } catch(err) { const txt = range.toString(); code.textContent = txt; range.deleteContents(); range.insertNode(code); }
+  saveSelection();
+}
+
+// ── LAYOUT ──
+function insertLayout(type) {
+  restoreSelection(); getEd().focus();
+  const ph = `<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%;min-height:80px;background:var(--g300);opacity:.25;display:block" alt="이미지 자리">`;
+  let html = '';
+  if (type === '2col') html = `<div class="layout-2col"><div><p>왼쪽 내용</p></div><div><p>오른쪽 내용</p></div></div><p><br></p>`;
+  else if (type === 'img-left') html = `<div class="img-left">${ph}<div><p>이미지 옆 텍스트</p></div></div><p><br></p>`;
+  else if (type === 'img-right') html = `<div class="img-right">${ph}<div><p>이미지 옆 텍스트</p></div></div><p><br></p>`;
+  else if (type === 'img-center') html = `<div class="img-center">${ph}<p style="font-family:var(--mono);font-size:10px;color:var(--g400);margin-top:6px">이미지 설명</p></div><p><br></p>`;
+  document.execCommand('insertHTML', false, html); saveSelection();
+}
+
+// ── IMAGE MODAL ──
+function openImgModal() {
+  saveSelection(); modalImgData = null;
+  document.getElementById('img-modal-preview').classList.remove('show');
+  document.getElementById('btn-do-insert').disabled = true;
+  document.getElementById('img-caption-input').value = '';
+  document.getElementById('img-modal-input').value = '';
+  document.getElementById('img-modal').classList.add('show');
+}
+function closeImgModal() { document.getElementById('img-modal').classList.remove('show'); }
+function handleModalImg(input) {
+  const f = input.files[0]; if (!f) return;
+  readImg(f, d => { modalImgData = d; const p = document.getElementById('img-modal-preview'); p.src = d; p.classList.add('show'); document.getElementById('btn-do-insert').disabled = false; });
+}
+function doInsertImg() {
+  if (!modalImgData) return;
+  const align = document.getElementById('img-align-sel').value;
+  const size = document.getElementById('img-size-sel').value;
+  const caption = document.getElementById('img-caption-input').value.trim();
+  const capHtml = caption ? `<p style="font-family:'DM Mono',monospace;font-size:10px;color:#777;text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid #333">${esc(caption)}</p>` : '';
+  const imgTag = `<img src="${modalImgData}" alt="${esc(caption)}" style="max-width:${size};filter:grayscale(100%);display:block">`;
+  let html = '';
+  if (align === 'full' || align === 'center') html = `<figure style="margin:24px 0;text-align:${align==='center'?'center':'left'}">${imgTag}${capHtml}</figure><p><br></p>`;
+  else if (align === 'left') html = `<div class="img-left">${imgTag}<div><p>텍스트를 여기에 입력하세요.</p></div></div><p><br></p>`;
+  else if (align === 'right') html = `<div class="img-right">${imgTag}<div><p>텍스트를 여기에 입력하세요.</p></div></div><p><br></p>`;
+  restoreSelection(); getEd().focus(); document.execCommand('insertHTML', false, html);
+  closeImgModal(); notify('이미지가 삽입되었습니다'); saveSelection();
+}
+const modalDrop = document.getElementById('img-modal-drop');
+modalDrop.addEventListener('dragover', e => { e.preventDefault(); modalDrop.style.borderColor='var(--white)'; });
+modalDrop.addEventListener('dragleave', () => { modalDrop.style.borderColor=''; });
+modalDrop.addEventListener('drop', e => {
+  e.preventDefault(); modalDrop.style.borderColor='';
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) readImg(f, d => { modalImgData = d; const p = document.getElementById('img-modal-preview'); p.src = d; p.classList.add('show'); document.getElementById('btn-do-insert').disabled = false; });
+});
+
+// ── UTILS ──
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function today() { return new Date().toISOString().slice(0,10); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function stripHtml(s) { const d = document.createElement('div'); d.innerHTML = s; return d.textContent || ''; }
+function fmtDate(s) { if (!s) return ''; const d = new Date(s+'T00:00:00'); return d.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'}); }
+function readImg(file, cb) { const r = new FileReader(); r.onload = e => cb(e.target.result); r.readAsDataURL(file); }
+function notify(msg) { const n = document.getElementById('notif'); n.textContent = msg; n.classList.add('show'); setTimeout(() => n.classList.remove('show'), 2600); }
+
+// ── INIT ──
+updateAdminUI();
+loadAndRenderPosts();
+</script>
+</body>
+</html>
