@@ -746,7 +746,12 @@ async function openPost(id) {
     document.getElementById('pv-date').textContent = fmtDate(p.date);
     document.getElementById('pv-title').textContent = p.title || '제목 없음';
     document.getElementById('pv-subtitle').textContent = p.subtitle || '';
-    document.getElementById('pv-content').innerHTML = p.content || '';
+    const rawContent = p.content || '';
+    // If content was double-escaped (e.g. &lt;br&gt; instead of <br>), unescape it
+    const content = rawContent.includes('&lt;') || rawContent.includes('&amp;')
+      ? (()=>{ const t = document.createElement('textarea'); t.innerHTML = rawContent; return t.value; })()
+      : rawContent;
+    document.getElementById('pv-content').innerHTML = content;
     renderYouTubeInContent(document.getElementById('pv-content'));
     const cv = document.getElementById('pv-cover');
     if (p.cover) { cv.src = p.cover; cv.style.display = 'block'; } else cv.style.display = 'none';
@@ -769,7 +774,11 @@ function openEditor(id) {
     document.getElementById('ed-subtitle').value = p.subtitle || '';
     document.getElementById('ed-tag').value = p.tag || '';
     document.getElementById('ed-date').value = p.date || today();
-    document.getElementById('ed-content').innerHTML = p.content || '';
+    const rawEc = p.content || '';
+    const edContent = rawEc.includes('&lt;') || rawEc.includes('&amp;')
+      ? (()=>{ const t = document.createElement('textarea'); t.innerHTML = rawEc; return t.value; })()
+      : rawEc;
+    document.getElementById('ed-content').innerHTML = edContent;
     if (p.cover) { coverData = p.cover; showCoverPreview(p.cover); } else clearCover();
   } else {
     document.getElementById('ed-label').textContent = '새 글 작성';
@@ -794,7 +803,13 @@ async function savePost() {
   const subtitle = document.getElementById('ed-subtitle').value.trim();
   const tag = document.getElementById('ed-tag').value.trim();
   const date = document.getElementById('ed-date').value;
-  const content = document.getElementById('ed-content').innerHTML;
+  let content = document.getElementById('ed-content').innerHTML;
+  // Unescape if accidentally double-escaped
+  if (content.includes('&lt;') || content.includes('&amp;lt;')) {
+    const t = document.createElement('textarea');
+    t.innerHTML = content;
+    content = t.value;
+  }
   if (!title) { notify('제목을 입력해 주세요'); return; }
 
   notify('저장 중...');
